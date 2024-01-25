@@ -18,4 +18,4 @@ python instruction.py
 
 #### TODO
 - [ ] Support all instructions covered in Chapter 6 to Chapter 11.
-- [ ] Simplify the usage based on Gradio
+- [x] Simplify the usage based on Gradio
