@@ -25,8 +25,8 @@ class Instruction(object):
         'sll': '000000',
         'srl': '000010',
         'sra': '000011',
-        'movn': '101001',
-        'movz': '101000',
+        'movn': '001011',
+        'movz': '001010',
         'jr': '001000',
         'mthi': '010001',
         'mtlo': '010011',
@@ -144,23 +144,23 @@ class Instruction(object):
 
                     case 'mthi':
                         self.rs = '{:05b}'.format(register[self.items[1]])
-                        self.func_code = self.FUNC_CODE_MAP(self.op)
+                        self.func_code = self.FUNC_CODE_MAP[self.op]
                         self.mechine_code = f'{self.opcode}{self.rs}000000000000000{self.func_code}'
 
                     case 'mtlo':
                         self.rs = '{:05b}'.format(register[self.items[1]])
-                        self.func_code = self.FUNC_CODE_MAP(self.op)
+                        self.func_code = self.FUNC_CODE_MAP[self.op]
                         self.mechine_code = f'{self.opcode}{self.rs}000000000000000{self.func_code}'
 
                     case 'mfhi':
                         self.rd = '{:05b}'.format(register[self.items[1]])
-                        self.func_code = self.FUNC_CODE_MAP(self.op)
-                        self.mechine_code = f'{self.opcode}000000000000000{self.rd}00000{self.func_code}'
+                        self.func_code = self.FUNC_CODE_MAP[self.op]
+                        self.mechine_code = f'{self.opcode}0000000000{self.rd}00000{self.func_code}'
 
                     case 'mflo':
                         self.rd = '{:05b}'.format(register[self.items[1]])
-                        self.func_code = self.FUNC_CODE_MAP(self.op)
-                        self.mechine_code = f'{self.opcode}000000000000000{self.rd}00000{self.func_code}'
+                        self.func_code = self.FUNC_CODE_MAP[self.op]
+                        self.mechine_code = f'{self.opcode}0000000000{self.rd}00000{self.func_code}'
                     
                     case 'sll':
                         self.opcode = self.OPCODE_MAP[self.op]
@@ -263,7 +263,23 @@ if __name__ == '__main__':
         'sll $2, $2, 19',
         'ssnop',
         'sra $2, $2, 16',
-        'srav $2, $2, $8'
+        'srav $2, $2, $8',
+        'lui $1, 0x0000',
+        'lui $2, 0xffff',
+        'lui $3, 0x0505',
+        'lui $4, 0x0000',
+        'movz $4 $2 $1',
+        'movn $4 $3 $1',
+        'movn $4 $3 $2',
+        'movz $4 $2 $3',
+        'mthi $0',
+        'mthi $2',
+        'mthi $3',
+        'mfhi $4',
+        'mtlo $3',
+        'mtlo $2',
+        'mtlo $1',
+        'mflo $4'   
     ]
 
     machine_codes = [
@@ -291,7 +307,23 @@ if __name__ == '__main__':
         '000214c0',
         '00000040',
         '00021403',
-        '01021007'
+        '01021007',
+        '3c010000',
+        '3c02ffff',
+        '3c030505',
+        '3c040000',
+        '0041200a',
+        '0061200b',
+        '0062200b',
+        '0043200a',
+        '00000011',
+        '00400011',
+        '00600011',
+        '00002010',
+        '00600013',
+        '00400013',
+        '00200013',
+        '00002012'
     ]
     
     assert(len(Instructions) == len(machine_codes))
