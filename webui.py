@@ -17,15 +17,22 @@ def process(text, mode, comment_symbol):
     return result
 
 def webui():
-    instruction = gr.Textbox(label="Instruction", lines=10, value='ori $1, $1, 0x0101 \nsllv $2, $2, $7')
+    instruction = gr.Textbox(label="Instruction", 
+                             value='sll $2, $2, 8\nsllv $2, $2, $7\nsrl $2, $2, 8\nsrlv $2, $2, $5\nnop\n',
+                             lines=10)
     machine_code = gr.Textbox(label="Machine Code", lines=10)
     mode = gr.Radio(label="Mode", choices=["bin", "hex"], value="hex")
     comment_symbol = gr.Textbox(label="Comment Symbol", value="//")
+    with open('example.txt', 'r') as f:
+        example_text = f.readlines()[: 5]
+
     interface = gr.Interface(
         fn=process,
-        inputs=[instruction,  mode, comment_symbol],
+        inputs=[instruction, mode, comment_symbol],
         outputs=machine_code,
+        examples=[[example, 'hex', '//'] for example in example_text],
     )
+    
     interface.launch()
 
 if __name__ == "__main__":
