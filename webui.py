@@ -24,7 +24,7 @@ def webui():
     mode = gr.Radio(label="Mode", choices=["bin", "hex"], value="hex")
     comment_symbol = gr.Textbox(label="Comment Symbol", value="//")
     with open('example.txt', 'r') as f:
-        example_text = f.readlines()[: 5]
+        example_text = f.readlines()[78:82]
 
     interface = gr.Interface(
         fn=process,

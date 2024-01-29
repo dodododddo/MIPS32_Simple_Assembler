@@ -4,79 +4,94 @@ from typing import Literal
 register = {f'${i}':i for i in range(32)}
 
 class Instruction(object):
+    SPECIAL1 = '000000'
+    SPECIAL2 = '011100'
     RTYPE = ['add', 'addu', 'sub', 'subu', 'and', 'or', 'xor', 'nor', 'slt', 'sltu', 'srlv', 'srav', 'sllv', 'movn', 'movz','mul']
     ITYPE = ['addi', 'addiu', 'andi', 'ori', 'xori', 'slti', 'sltiu', 'beq', 'bne']
     JTYPE = ['j', 'jal']
-    SPECIAL = ['lui', 'lw', 'sw', 'mthi', 'mtlo', 'mfhi', 'mflo', 'jr', 
+    OTHER = ['lui', 'lw', 'sw', 'mthi', 'mtlo', 'mfhi', 'mflo', 'jr', 
                'nop', 'ssnop', 'sync', 'pref','syscall', 'sll', 'srl', 
-               'sra', 'sllv', 'srlv', 'srav', 'clo', 'clz', 'mult', 'multu']
+               'sra', 'sllv', 'srlv', 'srav', 'clo', 'clz', 'mult', 'multu',
+               'madd', 'maddu', 'msub', 'msubu', 'div', 'divu']
     FUNC_CODE_MAP = {
-        'add': '100000',
+        'add':  '100000',
         'addu': '100001',
-        'sub': '100010',
+        'sub':  '100010',
         'subu': '100011',
-        'mul': '000010',
-        'and': '100100',
-        'or': '100101',
-        'xor': '100110',
-        'nor': '100111',
-        'slt': '101010',
+        'mul':  '000010',
+        'and':  '100100',
+        'or':   '100101',
+        'xor':  '100110',
+        'nor':  '100111',
+        'slt':  '101010',
         'sltu': '101011',
         'srlv': '000110',
         'srav': '000111',
         'sllv': '000100',
-        'sll': '000000',
-        'srl': '000010',
-        'sra': '000011',
+        'sll':  '000000',
+        'srl':  '000010',
+        'sra':  '000011',
         'movn': '001011',
         'movz': '001010',
-        'jr': '001000',
+        'jr':   '001000',
         'mthi': '010001',
         'mtlo': '010011',
         'mfhi': '010000',
         'mflo': '010010',
         'sync': '001111',
-        'nop': '000000',
-        'ssnop': '000000',
-        'clo': '100000',
-        'clz': '100001',
+        'nop':  '000000',
+        'ssnop':'000000',
+        'clo':  '100000',
+        'clz':  '100001',
         'mult': '011000',
-        'multu': '011001'
+        'multu':'011001',
+        'madd': '000000',
+        'maddu':'000001',
+        'msub': '000100',
+        'msubu':'000101',
+        'div':  '011010',
+        'divu': '011011'
     }
 
     OPCODE_MAP = {
-        'addi': '001000',
+        'addi':  '001000',
         'addiu': '001001',
-        'mul': '011100',
-        'andi': '001100',
-        'ori': '001101',
-        'xori': '001110',
-        'slti': '001010',
+        'andi':  '001100',
+        'ori':   '001101',
+        'xori':  '001110',
+        'slti':  '001010',
         'sltiu': '001011',
-        'beq': '000100',
-        'bne': '000101',
-        'j': '000010',
-        'jal': '000011',
-        'lui': '001111',
-        'lw': '100011',
-        'sw': '101011',
-        'sll': '000000',
-        'srl': '000000',
-        'sra': '000000',
-        'mthi': '000000',
-        'mtlo': '000000',
-        'mfhi': '000000',
-        'mflo': '000000',
-        'jr': '000000',
-        'nop': '000000',
-        'ssnop': '000000',
-        'sync': '000000',
-        'pref': '110011',
-        'syscall': '000000',
-        'clo':'011100',
-        'clz':'011100',
-        'mult': '000000',
-        'multu': '000000'
+        'beq':   '000100',
+        'bne':   '000101',
+        'j':     '000010',
+        'jal':   '000011',
+        'lui':   '001111',
+        'lw':    '100011',
+        'sw':    '101011',
+        'pref':  '110011',
+        'jr':    SPECIAL1,
+        'nop':   SPECIAL1,
+        'ssnop': SPECIAL1,
+        'sync':  SPECIAL1,
+        'sll':   SPECIAL1,
+        'srl':   SPECIAL1,
+        'sra':   SPECIAL1,
+        'mthi':  SPECIAL1,
+        'mtlo':  SPECIAL1,
+        'mfhi':  SPECIAL1,
+        'mflo':  SPECIAL1,
+        'mul':   SPECIAL2,
+        'clo':   SPECIAL2,
+        'clz':   SPECIAL2,
+        'mult':  SPECIAL1,
+        'multu': SPECIAL1,
+        'div':   SPECIAL1,
+        'divu':  SPECIAL1,
+        'madd':  SPECIAL2,
+        'maddu': SPECIAL2,
+        'msub':  SPECIAL2,
+        'msubu': SPECIAL2,
+        'syscall': SPECIAL1,
     }
     
 
@@ -90,7 +105,7 @@ class Instruction(object):
             raise ValueError(f'Invalid instruction: {instruction}')
         
         self.op = self.items[0]
-        self.type: Literal['R', 'I', 'J', 'SPECIAL']
+        self.type: Literal['R', 'I', 'J', 'OTHER']
 
         if self.op in self.RTYPE:
             self.type = 'R'
@@ -98,8 +113,8 @@ class Instruction(object):
             self.type = 'I'
         elif self.op in self.JTYPE:
             self.type = 'J'
-        elif self.op in self.SPECIAL:
-            self.type = 'SPECIAL'
+        elif self.op in self.OTHER:
+            self.type = 'OTHER'
         else:
             raise ValueError(f'Unsupported instruction: {instruction}')
         
@@ -133,7 +148,7 @@ class Instruction(object):
                 self.address = '{:026b}'.format(int(self.items[1], 16))
                 self.machine_code = f'{self.opcode}{self.address}'
 
-            case 'SPECIAL':
+            case 'OTHER':
                 self.opcode = self.OPCODE_MAP[self.op]
                 match self.op:
                     case 'lui':
@@ -146,56 +161,25 @@ class Instruction(object):
                         self.rs = '{:05b}'.format(register[self.items[1]])
                         self.machine_code = f'{self.opcode}{self.rs}00000{self.func_code}'
 
-                    case 'lw':
+                    case 'lw' | 'sw':
                         self.rt = '{:05b}'.format(register[self.items[1]])
                         self.imm = '{:016b}'.format(int(self.items[2], 16))
                         self.rs = '{:05b}'.format(register[self.items[3]])
                         self.machine_code = f'{self.opcode}{self.rs}{self.rt}{self.imm}'
 
-                    case 'sw':
-                        self.rt = '{:05b}'.format(register[self.items[1]])
-                        self.imm = '{:016b}'.format(int(self.items[2], 16))
-                        self.rs = '{:05b}'.format(register[self.items[3]])
-                        self.machine_code = f'{self.opcode}{self.rs}{self.rt}{self.imm}'
 
-                    case 'mthi':
+                    case 'mthi' | 'mtlo':
                         self.rs = '{:05b}'.format(register[self.items[1]])
                         self.func_code = self.FUNC_CODE_MAP[self.op]
                         self.machine_code = f'{self.opcode}{self.rs}000000000000000{self.func_code}'
 
-                    case 'mtlo':
-                        self.rs = '{:05b}'.format(register[self.items[1]])
-                        self.func_code = self.FUNC_CODE_MAP[self.op]
-                        self.machine_code = f'{self.opcode}{self.rs}000000000000000{self.func_code}'
-
-                    case 'mfhi':
+                    case 'mfhi' | 'mflo':
                         self.rd = '{:05b}'.format(register[self.items[1]])
                         self.func_code = self.FUNC_CODE_MAP[self.op]
                         self.machine_code = f'{self.opcode}0000000000{self.rd}00000{self.func_code}'
 
-                    case 'mflo':
-                        self.rd = '{:05b}'.format(register[self.items[1]])
-                        self.func_code = self.FUNC_CODE_MAP[self.op]
-                        self.machine_code = f'{self.opcode}0000000000{self.rd}00000{self.func_code}'
                     
-                    case 'sll':
-                        self.opcode = self.OPCODE_MAP[self.op]
-                        self.func_code = self.FUNC_CODE_MAP[self.op]
-                        self.rd = '{:05b}'.format(register[self.items[1]])
-                        self.rt = '{:05b}'.format(register[self.items[2]])
-                        self.shamt = '{:05b}'.format(int(self.items[3]))
-                        self.machine_code = f'{self.opcode}00000{self.rt}{self.rd}{self.shamt}{self.func_code}'
-
-
-                    case 'srl':
-                        self.opcode = self.OPCODE_MAP[self.op]
-                        self.func_code = self.FUNC_CODE_MAP[self.op]
-                        self.rd = '{:05b}'.format(register[self.items[1]])
-                        self.rt = '{:05b}'.format(register[self.items[2]])
-                        self.shamt = '{:05b}'.format(int(self.items[3]))
-                        self.machine_code = f'{self.opcode}00000{self.rt}{self.rd}{self.shamt}{self.func_code}'
-
-                    case 'sra':
+                    case 'sll' | 'srl' | 'sra':
                         self.opcode = self.OPCODE_MAP[self.op]
                         self.func_code = self.FUNC_CODE_MAP[self.op]
                         self.rd = '{:05b}'.format(register[self.items[1]])
@@ -222,35 +206,20 @@ class Instruction(object):
                         self.opcode = self.OPCODE_MAP[self.op]
                         self.machine_code = f'{self.opcode}' + '00000000000000000000000000'
 
-                    case 'clo':
+                    case 'clo' | 'clz':
                         self.opcode = self.OPCODE_MAP[self.op]
                         self.func_code = self.FUNC_CODE_MAP[self.op]
                         self.rd = '{:05b}'.format(register[self.items[1]])
                         self.rs = '{:05b}'.format(register[self.items[2]])
                         self.machine_code = f'{self.opcode}{self.rs}00000{self.rd}00000{self.func_code}'
 
-                    case 'clz':
-                        self.opcode = self.OPCODE_MAP[self.op]
-                        self.func_code = self.FUNC_CODE_MAP[self.op]
-                        self.rd = '{:05b}'.format(register[self.items[1]])
-                        self.rs = '{:05b}'.format(register[self.items[2]])
-                        self.machine_code = f'{self.opcode}{self.rs}00000{self.rd}00000{self.func_code}'
-
-                    case 'mult':
-                        self.opcode = self.OPCODE_MAP[self.op]
-                        self.func_code = self.FUNC_CODE_MAP[self.op]
-                        self.rs = '{:05b}'.format(register[self.items[1]])
-                        self.rt = '{:05b}'.format(register[self.items[2]])
-                        self.machine_code = f'{self.opcode}{self.rs}{self.rt}0000000000{self.func_code}'
-
-                    case 'multu':
+                    case 'mult' | 'multu' | 'madd' | 'maddu' | 'msub' | 'msubu' | 'div' | 'divu':
                         self.opcode = self.OPCODE_MAP[self.op]
                         self.func_code = self.FUNC_CODE_MAP[self.op]
                         self.rs = '{:05b}'.format(register[self.items[1]])
                         self.rt = '{:05b}'.format(register[self.items[2]])
                         self.machine_code = f'{self.opcode}{self.rs}{self.rt}0000000000{self.func_code}'
                     
-
     
     def assemble(self, mode: Literal['bin', 'hex'] = 'hex') -> str | None:
         if self.machine_code == '':

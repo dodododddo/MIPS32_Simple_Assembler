@@ -1,5 +1,5 @@
 # MIPS32 Simple Assembler for OpenMIPS (Implemented in Python)
-While learning OpenMIPS, I find it cumbersome to write complete assembly files, configure the GNU toolchain, and follow the textbook's methods for translating a few instructions into machine code during the early stages of learning. This small tool can translate MIPS32 instructions in text format into machine code. As I have only studied up to Chapter 7, I have currently tested the instructions covered in the first six chapters.
+While learning OpenMIPS, I find it cumbersome to write complete assembly files, configure the GNU toolchain, and follow the textbook's methods for translating a few instructions into machine code during the early stages of learning. This small tool can translate MIPS32 instructions in text format into machine code. As I have only studied up to Chapter 7, I have currently tested the instructions covered in the first 7 chapters.
 #### usage
 
 * webui
@@ -29,5 +29,5 @@ python instruction.py
 
 
 #### TODO
-- [ ] Support all instructions covered in Chapter 7 to Chapter 11. (Now: Ch7.4)
+- [ ] Support all instructions covered in Chapter 8 to Chapter 11. (Now: Ch7)
 - [x] Simplify the usage based on Gradio
